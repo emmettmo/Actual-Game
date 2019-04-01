@@ -22,10 +22,11 @@ class SceneMain extends Phaser.Scene {
       repeat: -1
     });
 
-    this.chunkSize = 16;
+    this.chunkSize = 4;
     this.tileSize = 16;
     this.cameraSpeed = 5;
     this.zoom = 1;
+    this.numChunksToLoad = 5;
 
     this.cameras.main.setZoom(this.zoom);
     this.followPoint = new Phaser.Math.Vector2(
@@ -41,6 +42,8 @@ class SceneMain extends Phaser.Scene {
     this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
     this.keyPlus = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
     this.keyMinus = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.L);
+    this.keyChunkUp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
+    this.keyChunkDown = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.K);
 
   }
 
@@ -62,10 +65,8 @@ class SceneMain extends Phaser.Scene {
     snappedChunkX = snappedChunkX / this.chunkSize / this.tileSize;
     snappedChunkY = snappedChunkY / this.chunkSize / this.tileSize;
 
-    var numChunksToLoad = 5;
-
-    for (var x = snappedChunkX - numChunksToLoad; x < snappedChunkX + numChunksToLoad; x++) {
-      for (var y = snappedChunkY - numChunksToLoad; y < snappedChunkY + numChunksToLoad; y++) {
+    for (var x = snappedChunkX - this.numChunksToLoad; x < snappedChunkX + this.numChunksToLoad; x++) {
+      for (var y = snappedChunkY - this.numChunksToLoad; y < snappedChunkY + this.numChunksToLoad; y++) {
         var existingChunk = this.getChunk(x, y);
 
         if (existingChunk == null) {
@@ -83,7 +84,7 @@ class SceneMain extends Phaser.Scene {
         snappedChunkY,
         chunk.x,
         chunk.y
-      ) < 3) {
+      ) < this.numChunksToLoad) {
         if (chunk !== null) {
           chunk.load();
         }
@@ -108,12 +109,20 @@ class SceneMain extends Phaser.Scene {
       this.followPoint.x += this.cameraSpeed;
     }
     if (this.keyPlus.isDown) {
-      this.zoom = this.zoom + .3;
+      this.zoom = this.zoom + 0.03;
     }
     if (this.keyMinus.isDown) {
-      this.zoom = this.zoom - 0.3;
+      this.zoom = this.zoom - 0.03;
+    }
+    if (this.keyChunkUp.isDown) {
+      this.numChunksToLoad += 1;
+      console.log(this.numChunksToLoad);
+    }
+    if (this.keyChunkDown.isDown) {
+      this.numChunksToLoad -= 1;
     }
 
+    this.cameras.main.setZoom(this.zoom);
 
     this.cameras.main.centerOn(this.followPoint.x, this.followPoint.y);
   }

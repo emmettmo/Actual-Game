@@ -28,14 +28,14 @@ class Chunk {
           var key = "";
           var animationKey = "";
 
-          if (perlinValue < 0.2) {
+          if (perlinValue < 0.1) {
             key = "sprWater";
             animationKey = "sprWater";
           }
-          else if (perlinValue >= 0.2 && perlinValue < 0.3) {
+          else if (perlinValue >= 0.1 && perlinValue < 0.2) {
             key = "sprSand";
           }
-          else if (perlinValue >= 0.3) {
+          else if (perlinValue >= 0.2) {
             key = "sprGrass";
           }
 
