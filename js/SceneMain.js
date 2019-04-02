@@ -1,3 +1,7 @@
+var player;
+var tileGroup;
+var playerGroup;
+
 class SceneMain extends Phaser.Scene {
   constructor() {
     super({ key: "SceneMain" });
@@ -10,30 +14,26 @@ class SceneMain extends Phaser.Scene {
     });
     this.load.image("sprSand", "content/sprSand.png");
     this.load.image("sprGrass", "content/sprGrass.png");
+    this.load.image("sprRock", "content/sprRock.png");
+    this.load.image("sprPlayer", "content/sprPlayer.png");
+
   }
 
 
   create() {
-
     this.anims.create({
       key: "sprWater",
       frames: this.anims.generateFrameNumbers("sprWater"),
-      frameRate: 5,
+      frameRate: 4,
       repeat: -1
     });
 
     this.chunkSize = 4;
     this.tileSize = 16;
     this.cameraSpeed = 5;
+    this.playerSpeed = 3;
     this.zoom = 1;
     this.numChunksToLoad = 5;
-
-    this.cameras.main.setZoom(this.zoom);
-    this.followPoint = new Phaser.Math.Vector2(
-      this.cameras.main.worldView.x + (this.cameras.main.worldView.width * 0.5),
-      this.cameras.main.worldView.y + (this.cameras.main.worldView.height * 0.5)
-    );
-
     this.chunks = [];
 
     this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -45,6 +45,12 @@ class SceneMain extends Phaser.Scene {
     this.keyChunkUp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
     this.keyChunkDown = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.K);
 
+    player = this.physics.add.image(100, 100, "sprPlayer");
+    this.cameras.main.setZoom(this.zoom);
+    this.cameras.main.startFollow(player, true);
+
+    tileGroup = this.add.group();
+    playerGroup = this.add.group();
   }
 
   getChunk(x, y) {
@@ -59,12 +65,13 @@ class SceneMain extends Phaser.Scene {
 
   update() {
 
-    var snappedChunkX = (this.chunkSize * this.tileSize) * Math.round(this.followPoint.x / (this.chunkSize * this.tileSize));
-    var snappedChunkY = (this.chunkSize * this.tileSize) * Math.round(this.followPoint.y / (this.chunkSize * this.tileSize));
+    var snappedChunkX = (this.chunkSize * this.tileSize) * Math.round(player.x / (this.chunkSize * this.tileSize));
+    var snappedChunkY = (this.chunkSize * this.tileSize) * Math.round(player.y / (this.chunkSize * this.tileSize));
 
     snappedChunkX = snappedChunkX / this.chunkSize / this.tileSize;
     snappedChunkY = snappedChunkY / this.chunkSize / this.tileSize;
 
+    //For creating new chunks
     for (var x = snappedChunkX - this.numChunksToLoad; x < snappedChunkX + this.numChunksToLoad; x++) {
       for (var y = snappedChunkY - this.numChunksToLoad; y < snappedChunkY + this.numChunksToLoad; y++) {
         var existingChunk = this.getChunk(x, y);
@@ -76,15 +83,12 @@ class SceneMain extends Phaser.Scene {
       }
     }
 
+
+    /*
     for (var i = 0; i < this.chunks.length; i++) {
       var chunk = this.chunks[i];
 
-      if (Phaser.Math.Distance.Between(
-        snappedChunkX,
-        snappedChunkY,
-        chunk.x,
-        chunk.y
-      ) < this.numChunksToLoad) {
+      if (Phaser.Math.Distance.Between(snappedChunkX, snappedChunkY, chunk.x, chunk.y) < this.numChunksToLoad) {
         if (chunk !== null) {
           chunk.load();
         }
@@ -95,18 +99,19 @@ class SceneMain extends Phaser.Scene {
         }
       }
     }
-
+    */
+    player.setVelocity(0);
     if (this.keyW.isDown) {
-      this.followPoint.y -= this.cameraSpeed;
+      player.setVelocityY(-40);
     }
     if (this.keyS.isDown) {
-      this.followPoint.y += this.cameraSpeed;
+      player.setVelocityY(40);
     }
     if (this.keyA.isDown) {
-      this.followPoint.x -= this.cameraSpeed;
+      player.setVelocityX(-40);
     }
     if (this.keyD.isDown) {
-      this.followPoint.x += this.cameraSpeed;
+      player.setVelocityX(40);
     }
     if (this.keyPlus.isDown) {
       this.zoom = this.zoom + 0.03;
@@ -124,6 +129,5 @@ class SceneMain extends Phaser.Scene {
 
     this.cameras.main.setZoom(this.zoom);
 
-    this.cameras.main.centerOn(this.followPoint.x, this.followPoint.y);
   }
 }

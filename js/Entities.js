@@ -28,15 +28,15 @@ class Chunk {
           var key = "";
           var animationKey = "";
 
-          if (perlinValue < 0.1) {
+          if (perlinValue < 0.01) {
             key = "sprWater";
             animationKey = "sprWater";
-          }
-          else if (perlinValue >= 0.1 && perlinValue < 0.2) {
+          } else if (perlinValue >= 0.01 && perlinValue < 0.15) {
             key = "sprSand";
-          }
-          else if (perlinValue >= 0.2) {
+          } else if (perlinValue >= 0.15 && perlinValue < 0.5) {
             key = "sprGrass";
+          } else if (perlinValue >= 0.5) {
+            key = "sprRock";
           }
 
 
@@ -60,6 +60,11 @@ class Tile extends Phaser.GameObjects.Sprite {
     super(scene, x, y, key);
     this.scene = scene;
     this.scene.add.existing(this);
+    if(key === "sprWater") {
+      this.walkable = false;
+    } else {
+      this.walkable = true;
+    }
     this.setOrigin(0);
   }
 }
